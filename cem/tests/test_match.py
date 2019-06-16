@@ -9,6 +9,8 @@ class StratumTest(unittest.TestCase):
         delta = s.get_difference()
         self.assertEqual(delta, 1)
 
+# Simulate a difference in mean: mu_1, mu_0, sigma_1, sigma_0; confirm that CI contains true mean alpha percent of the time
+
 class MatchTest(unittest.TestCase):
     def test_match(self):
         m = ExactMatching()
