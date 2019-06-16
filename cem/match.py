@@ -29,13 +29,16 @@ class ExactMatching(object):
     def match(self, X, t, y):
         control_obs, treatment_obs = defaultdict(list), defaultdict(list)
         """Perform exact matching using covariates X (pandas dataframe), treatment indicator t, and response variable y."""
-        for i, x_row in enumerate(X.iterrows()):
+        for i, tup in enumerate(X.iterrows()):
+            _, x_row = tup
             if t[i] == 1:
                 treatment_obs[tuple(x_row)].append(y[i])
             elif t[i] == 0:
                 control_obs[tuple(x_row)].append(y[i])
             else:
                 raise Exception('Treatment values must be 1 or 0, but got {0}'.format(t[i]))
+        unique_signatures = list(set(treatment_obs) | set(control_obs))
+        self.strata = {}
         for k in unique_signatures:
             self.strata[k] = Stratum(k, control_obs[k], treatment_obs[k])
 
@@ -47,6 +50,9 @@ class ExactMatching(object):
 
     def get_ate(self):
         pass
+
+    def get_strata(self):
+        return self.strata
 
     def get_pruned_strata(self):
         pass
