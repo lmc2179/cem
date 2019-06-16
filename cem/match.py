@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from collections import defaultdict
+from scipy.stats import norm
 
 class Stratum(object):
     def __init__(self, signature, y_control, y_treatment):
@@ -15,6 +16,11 @@ class Stratum(object):
 
     def get_sigma(self):
         return self.sigma
+
+    def get_difference_confint(self, alpha):
+        z = norm(0, 1).interval(1. - alpha)[1]
+        w = z * self.sigma
+        return self.difference - w, self.difference + w
 
 class ExactMatching(object):
     def __init__(self):
