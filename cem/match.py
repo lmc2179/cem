@@ -22,6 +22,12 @@ class Stratum(object):
         w = z * self.sigma
         return self.difference - w, self.difference + w
 
+    def get_control_count(self):
+        return len(self.y_control)
+
+    def get_treatment_count(self):
+        return len(self.y_treatment)
+
 class ExactMatching(object):
     def __init__(self):
         self.strata = None
@@ -53,6 +59,10 @@ class ExactMatching(object):
 
     def get_strata(self):
         return self.strata
+
+    def get_strata_dataframe(self):
+        rows = [[sig, s.get_difference(), s.get_sigma(), s.get_control_count(), s.get_treatment_count()] for s in self.get_strata()]
+        return pd.DataFrame(rows, columns=['signature', 'diff', 'sigma', 'control_count', 'treatment_count'])
 
     def get_pruned_strata(self):
         pass
