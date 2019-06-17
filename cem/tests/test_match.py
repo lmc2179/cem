@@ -39,13 +39,23 @@ class MatchTest(unittest.TestCase):
         self.assertEqual(len(strata), 1)
         self.assertEqual(strata[('A',)].get_difference(), 1)
 
-    @unittest.skip
     def test_confounding(self):
-        N = 1000
-        Z = np.random.binomial(1, 0.3, N)
-        X = [np.random.binomial(1, 0.25, 1) if z == 0 else np.random.binomial(1, 0.6, 1) for z in Z]
-        Y = []
-        for x, z in zip(X, Z):
-            p_lookup = {(0, 0): 0, (0, 1): 0, (1, 0): 0, (1, 1): 1}
+        def _sim_t(x):
+            p = .25 if x == 1 else 0.75
+            return np.random.binomial(1, p, 1)
+        def _sim_y(t, x):
+            p = .4 if x == 1 else .6
+            if t == 1:
+                p += 0.05
+            return np.random.binomial(1, p, 1)
+        N = 100000
+        X = pd.DataFrame({'match_var': np.random.binomial(1, 0.45, N)})
+        t = [_sim_t(x) for x in X['match_var']]
+        y = [_sim_y(t, x) for t, x in zip(t, X['match_var'])]
+ 
         m = ExactMatching()
-
+        m.match(X, t, y)
+        strata = m.get_strata()
+        self.assertEqual(len(strata), 2)
+        self.assertEqual(round(strata[(1,)].get_difference(), 2), .05)
+        self.assertEqual(round(strata[(0,)].get_difference(), 2), .05)
