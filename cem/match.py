@@ -11,6 +11,9 @@ class Stratum(object):
         self.difference = np.mean(y_treatment) - np.mean(y_control)
         self.sigma = np.sqrt((np.var(y_control)/len(y_control)) + (np.var(y_treatment)/len(y_treatment)))
 
+    def get_signature(self):
+        return self.signature
+
     def get_difference(self):
         return self.difference
 
@@ -49,20 +52,26 @@ class ExactMatching(object):
             self.strata[k] = Stratum(k, control_obs[k], treatment_obs[k])
 
     def get_att(self):
-        pass
+        strata_df = self.get_strata_dataframe()
+        w = strata_df['treatment_count'] / strata_df['treatment_count'].sum()
+        return np.dot(strata_df['diff'], w)
 
     def get_atc(self):
-        pass
+        strata_df = self.get_strata_dataframe()
+        w = strata_df['control_count'] / strata_df['control_count'].sum()
+        return np.dot(strata_df['diff'], w)
 
     def get_ate(self):
-        pass
+        strata_df = self.get_strata_dataframe()
+        w = strata_df['total_count'] / strata_df['total_count'].sum()
+        return np.dot(strata_df['diff'], w)
 
     def get_strata(self):
         return self.strata
 
     def get_strata_dataframe(self):
-        rows = [[sig, s.get_difference(), s.get_sigma(), s.get_control_count(), s.get_treatment_count()] for s in self.get_strata()]
-        return pd.DataFrame(rows, columns=['signature', 'diff', 'sigma', 'control_count', 'treatment_count'])
+        rows = [[sig, s.get_difference(), s.get_sigma(), s.get_control_count(), s.get_treatment_count(), s.get_control_count() + s.get_treatment_count()] for sig, s in self.get_strata().items()]
+        return pd.DataFrame(rows, columns=['signature', 'diff', 'sigma', 'control_count', 'treatment_count', 'total_count'])
 
     def get_pruned_strata(self):
         pass

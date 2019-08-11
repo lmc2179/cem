@@ -38,7 +38,14 @@ class MatchTest(unittest.TestCase):
         strata = m.get_strata() 
         self.assertEqual(len(strata), 1)
         self.assertEqual(strata[('A',)].get_difference(), 1)
+        self.assertEqual(m.get_att(), 1)
+        self.assertEqual(m.get_atc(), 1)
+        self.assertEqual(m.get_ate(), 1)
 
+    def test_simple_match_two_stratum(self):
+        pass
+
+    @unittest.skip('make this faster')
     def test_confounding(self):
         def _sim_t(x):
             p = .25 if x == 1 else 0.75
